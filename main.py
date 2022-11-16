@@ -12,6 +12,9 @@ screen = pygame.display.set_mode(
     pygame.OPENGL | pygame.DOUBLEBUF
 )
 
+dT = pygame.time.Clock()
+
+
 vertex_shader = """
 #version 460
 layout (location = 0) in vec3 position;
@@ -150,7 +153,7 @@ glEnableVertexAttribArray(1)
 def calculateMatrix(angle):
     i = glm.mat4(1)
     translate = glm.translate(i, glm.vec3(0, 0, 0))
-    rotate = glm.rotate(i, glm.radians(angle), glm.vec3(0, 1, 0))
+    rotate = glm.rotate(i, angle, glm.vec3(0, 1, 0))
     scale = glm.scale(i, glm.vec3(1, 1, 1))
 
     model = translate * rotate * scale
@@ -161,12 +164,7 @@ def calculateMatrix(angle):
         glm.vec3(0, 1, 0)
     )
 
-    projection = glm.perspective(
-        glm.radians(45),
-        1600/1200,
-        0.1,
-        1000.0
-    )
+    projection = glm.perspective(glm.radians(45), 1, 0.1, 1000.0)
 
     amatrix = projection * view * model
 
@@ -178,7 +176,7 @@ def calculateMatrix(angle):
     )
 
 
-glViewport(0, 0, 1600, 1200)
+glViewport(0, 0, 800, 800)
 
 
 running = True
@@ -186,6 +184,7 @@ running = True
 glClearColor(0.5, 1.0, 0.5, 1.0)
 r = 0
 # render.scene.append( face )
+calculateMatrix(r)
 
 while running:
 
@@ -217,11 +216,6 @@ while running:
     # if keys[K_x]:
     #     render.camRotation.y -= 15
 
-    for ev in pygame.event.get():
-        if ev.type != pygame.QUIT and ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE or ev.type == pygame.QUIT:
-            isRunning = False
-
-    r += 1
     glClear(GL_COLOR_BUFFER_BIT)
 
     color1 = random.random()
@@ -247,3 +241,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        if event.type == pygame.KEYDOWN:
+
+            if event.key == pygame.K_RIGHT:
+                r += 0.3
+                calculateMatrix(r)
+            if event.key == pygame.K_LEFT:
+                r -= 0.3
+                calculateMatrix(r)
